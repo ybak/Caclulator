@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>网贷计算器</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <!-- 引入angular.js及calculate（格式化数据，提交http请求） -->
+    <script src="./js/angular.min.js"></script>
+    <script src="./js/calculate.js"></script>
+    <!-- 引入checkForm.js 检查表单 -->
+    <script src="./js/checkForm.js"></script>
+</head>
+<body>
+<p></p>
+<!-- frame -->
+<div class="row">
+    <!-- frame-left -->
+    <div class="col-xs-1">&nbsp;</div>
+    <!-- frame-container -->
+    <div class="container-fluid col-xs-10">
+
+        <!-- header -->
+        <div class="row">
+            <header class="page-header">
+                <h1>&nbsp;&nbsp;网贷计算器</h1>
+                <!-- id="date" -->
+            </header>
+        </div>
+        <!-- main -->
+        <div class="row" data-ng-app="calcApp" data-ng-controller="calcCtrl">
+            <!-- main-top -->
+            <p></p>
+            <!-- main-left -->
+            <div class="form-horizontal col-sm-3 col-md-5">
+                <form name="calcForm" id="calcForm" data-ng-submit="calculate()" >
+                    <div class="form-group">
+                        <label for="loanDate" class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-9 col-md-4 control-label">借 出 日 期 ：</label>
+                        <div class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-11 col-md-6">
+                            <input name="loanDate" id="loanDate" class="form-control" type="date" placeholder="2017-01-01" data-ng-model="loanDate" min="2017-01-01" max="2050-12-31" required/>
+                            <p style="color:red" data-ng-show="calcForm.loanDate.$dirty && calcForm.loanDate.$invalid">
+                                <span data-ng-show="calcForm.loanDate.$error.required">&nbsp;&nbsp;借出日期是必须的!</span>
+                                <span data-ng-show="calcForm.loanDate.$error.date">&nbsp;&nbsp;借出日期不合法!</span>
+                                <span data-ng-show="calcForm.loanDate.$error.min">&nbsp;&nbsp;借出日期过小!</span>
+                                <span data-ng-show="calcForm.loanDate.$error.max">&nbsp;&nbsp;借出日期过大!</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanAmount" class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-9 col-md-4 control-label">借 出 金 额 ：</label>
+                        <div class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-11 col-md-6">
+                            <input name="loanAmount" id="loanAmount" class="form-control" type="text" data-ng-model="loanAmount" onkeyup="loanAmountUp()" min="0" maxlength=16 required />
+                            <p style="color:red" data-ng-show="calcForm.loanAmount.$dirty && calcForm.loanAmount.$invalid">
+                                <span data-ng-show="calcForm.loanAmount.$error.required">&nbsp;&nbsp;借出金额是必须的!</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanTerm" class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-9 col-md-4 control-label">还 款 期 限 ：</label>
+                        <div class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-11 col-md-6">
+                            <input type="number" class="form-control" name="loanTerm" id="loanTerm" data-ng-model="loanTerm" min="0" max="99999" required>&nbsp;&nbsp;
+                            <p style="color:red" data-ng-show="calcForm.loanTerm.$dirty && calcForm.loanTerm.$invalid">
+                                <span data-ng-show="calcForm.loanTerm.$error.required">&nbsp;&nbsp;还款期限是必须的!</span>
+                                <span data-ng-show="calcForm.loanTerm.$error.number">&nbsp;&nbsp;还款期限数值不合法!</span>
+                                <span data-ng-show="calcForm.loanTerm.$error.min">&nbsp;&nbsp;还款期限过小!</span>
+                                <span data-ng-show="calcForm.loanTerm.$error.max">&nbsp;&nbsp;还款期限过大!</span>
+                            </p>
+                            <label class="radio-inline">
+                                <input class="" type="radio" name="loanTermType" id="loanTermMonth" data-ng-model="loanTermType" value=1 required>个月</label>
+                            <label class="radio-inline">
+                                <input type="radio" name="loanTermType" id="loanTermDay" data-ng-model="loanTermType" value=2 >天</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanRate" class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-9 col-md-4 control-label">借 出 利 率 ：</label>
+                        <div class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-11 col-md-6">
+                            <input type="text" class="form-control" id="loanRate" name="loanRate" data-ng-model="loanRate" placeholder="18.888" maxlength=6 onkeyup="loanRateUp()" required>&nbsp;&nbsp;
+                            <p style="color:red" data-ng-show="calcForm.loanRate.$dirty && calcForm.loanRate.$invalid">
+                                <span data-ng-show="calcForm.loanRate.$error.required">&nbsp;&nbsp;借出利率是必须的!</span>
+                            </p>
+                            <label class="radio-inline">
+                                <input class="" type="radio" name="loanRateType" id="loanRateYear" data-ng-model="loanRateType" value=1 required>年利率</label>
+                            <label class="radio-inline">
+                                <input type="radio" name="loanRateType" id="loanRateDay" data-ng-model="loanRateType" value=2 >日利率&nbsp;&nbsp;&nbsp;&nbsp;%</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="repayType" class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-9 col-md-4 control-label">还 款 方 式 ：</label>
+                        <div class="col-xs-offset-1 col-xs-10 col-sm-offset-0 col-sm-11 col-md-6">
+                            <select class="form-control" id="repayType" name="repayType" data-ng-model="repayType" data-ng-init="repayType = 1" data-ng-options="x for (x,y) in repayTypes" required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input class="btn btn-default btn-md col-xs-offset-2 col-md-offset-3" id="summit" type="submit"
+                               value=" 提 交 " data-ng-model="submit" data-ng-disabled="calcForm.$invalid">
+                        <div class="col-xs-2 col-sm-8 col-md-2"></div>&nbsp;&nbsp;
+                        <input type="reset" class="btn btn-default btn-md" value=" 重 置 ">
+                    </div>
+                    <!-- 显示请求响应信息 -->
+                    <p class="text-center">{{ Msg }}</p>
+                </form>
+            </div>
+            <!-- main-right -->
+            <div class="col-sm-9 col-md-7" data-ng-show="calcForm.$valid" >
+                <div>
+                    <table class="table table-bordered" >
+                        <tr role="row">
+                            <th>期号</th>
+                            <th>待收</th>
+                            <th>本金</th>
+                            <th>利息</th>
+                            <th>奖金</th>
+                            <th>到期日期</th>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pre-scrollable">
+                    <table class="table table-bordered" >
+                        <tr data-ng-repeat="x in scheduleList" >
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ x.balance }}</td>
+                            <td>{{ x.principal }}</td>
+                            <td>{{ x.interest }}</td>
+                            <td>{{ x.bonusInterest }}</td>
+                            <td>{{ x.payDate | date:'yyyy-MM-dd' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- frame-right -->
+    <div class="col-xs-1">&nbsp;</div>
+</div>
+</body>
+</html>
